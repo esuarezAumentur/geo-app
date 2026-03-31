@@ -3,35 +3,6 @@
     <div class="overlay">
       <h1>🌍 Plataforma de Mapas 3D</h1>
       <p>Navega fotorrealísticamente por la ciudad de Lugo</p>
-      <form class="user-form" @submit.prevent="registerUser">
-        <h2 class="user-form-title">Crear usuario (prueba de integración)</h2>
-
-        <label class="field">
-          <span>Email</span>
-          <input v-model.trim="form.email" type="email" autocomplete="email" required />
-        </label>
-
-        <label class="field">
-          <span>Password</span>
-          <input v-model="form.password" type="password" autocomplete="new-password" minlength="8" required />
-        </label>
-
-        <label class="field">
-          <span>Rol</span>
-          <select v-model="form.role">
-            <option value="viewer">viewer</option>
-            <option value="editor">editor</option>
-            <option value="admin">admin</option>
-          </select>
-        </label>
-
-        <button class="submit-btn" type="submit" :disabled="state.loading">
-          {{ state.loading ? 'Creando…' : 'Crear usuario' }}
-        </button>
-
-        <p v-if="state.error" class="integration-error">{{ state.error }}</p>
-        <pre v-if="state.result" class="integration-result">{{ state.result }}</pre>
-      </form>
       <router-link to="/admin" class="admin-link">Ir al Panel de Administración →</router-link>
     </div>
     
@@ -43,58 +14,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive } from 'vue'
-import { api } from '@/services/api'
+import { onMounted } from 'vue'
 
 onMounted(() => {
   console.log('Vista del visor montada. Lista para inicializar CesiumJS.')
 })
 
-const form = reactive<{
-  email: string
-  password: string
-  role: 'admin' | 'editor' | 'viewer'
-}>({
-  email: '',
-  password: '',
-  role: 'viewer',
-})
-
-const state = reactive<{
-  loading: boolean
-  error: string | null
-  result: string | null
-}>({
-  loading: false,
-  error: null,
-  result: null,
-})
-
-async function registerUser() {
-  state.loading = true
-  state.error = null
-  state.result = null
-
-  try {
-    const { data } = await api.post('/auth/register', {
-      email: form.email,
-      password: form.password,
-      role: form.role,
-    })
-    state.result = JSON.stringify(data, null, 2)
-  } catch (e) {
-    if (e instanceof Error) {
-      state.error = e.message
-    } else {
-      // Axios error sin type-narrowing
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const err: any = e
-      state.error = err?.response?.data?.message || String(e)
-    }
-  } finally {
-    state.loading = false
-  }
-}
 </script>
 
 <style scoped>
