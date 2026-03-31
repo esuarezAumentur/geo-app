@@ -1,6 +1,6 @@
 # geo-app monorepo
 
-Monorepo de la Plataforma de Mapas Interactivos 3D, con backend y frontend en un solo workspace. 
+Monorepo de la Plataforma de Mapas Interactivos 3D, con backend y frontend en un solo workspace.
 
 ## Estructura
 
