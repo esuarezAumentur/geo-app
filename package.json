@@ -1,0 +1,24 @@
+{
+  "name": "geo-app-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "packageManager": "pnpm@10.6.0",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "format": "turbo run format",
+    "dev:backend": "pnpm --filter geo-admin-backend dev",
+    "dev:frontend": "pnpm --filter geo-editor-pwa dev",
+    "start:backend": "pnpm --filter geo-admin-backend start",
+    "docker:up": "docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.override.yml up --build -d",
+    "docker:down": "docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.override.yml down"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.8"
+  }
+}

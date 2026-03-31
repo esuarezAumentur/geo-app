@@ -1,0 +1,43 @@
+services:
+  api:
+    build:
+      context: ../../apps/backend
+      dockerfile: ../../infra/docker/api.Dockerfile
+    container_name: geo-backend
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    env_file:
+      - ../../apps/backend/.env
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/geo-admin
+    depends_on:
+      - mongo
+    volumes:
+      - uploads_data:/data/uploads
+
+  mongo:
+    image: mongo:7
+    container_name: geo-database
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+
+  frontend:
+    build:
+      context: ../../apps/frontend
+      dockerfile: ../../infra/docker/frontend.Dockerfile
+    container_name: geo-frontend
+    restart: unless-stopped
+    ports:
+      - '5173:5173'
+    env_file:
+      - ../../apps/frontend/.env
+    depends_on:
+      - api
+
+volumes:
+  mongo_data:
+  uploads_data:

@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+
+# build artifacts
+dist/
+coverage/
+*.tsbuildinfo
+
+# envs and logs
+.env
+.env.*
+*.log
+logs/
+
+# editor and os files
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# app-specific artifacts
+apps/backend/uploads/
+apps/frontend/dist/
+apps/frontend/dist-ssr/
+apps/frontend/.eslintcache
