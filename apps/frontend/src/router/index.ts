@@ -1,7 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import ViewerView from '../views/ViewerView.vue'
-import AdminView from '../views/AdminView.vue'
-import LoginView from '../views/LoginView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -9,35 +6,72 @@ const router = createRouter({
     {
       path: '/',
       name: 'viewer',
-      component: ViewerView,
-    },
-    {
-      path: '/admin',
-      name: 'admin',
-      component: AdminView,
-      meta: { requiresAuth: true }
+      component: () => import('../views/ViewerView.vue'),
     },
     {
       path: '/login',
       name: 'login',
-      component: LoginView,
-    }
+      component: () => import('../views/LoginView.vue'),
+    },
+    {
+      path: '/admin',
+      component: () => import('../layouts/AdminLayout.vue'),
+      meta: { requiresAuth: true },
+      redirect: '/admin/locations',
+      children: [
+        {
+          path: 'locations',
+          name: 'admin-locations',
+          component: () => import('../views/admin/locations/LocationsList.vue'),
+        },
+        {
+          path: 'locations/create',
+          name: 'admin-locations-create',
+          component: () => import('../views/admin/locations/LocationsCreate.vue'),
+        },
+        {
+          path: 'routes',
+          name: 'admin-routes',
+          component: () => import('../views/admin/routes/RoutesList.vue'),
+        },
+        {
+          path: 'routes/create',
+          name: 'admin-routes-create',
+          component: () => import('../views/admin/routes/RoutesCreate.vue'),
+        },
+        {
+          path: 'models',
+          name: 'admin-models',
+          component: () => import('../views/admin/models/ModelsList.vue'),
+        },
+        {
+          path: 'models/create',
+          name: 'admin-models-create',
+          component: () => import('../views/admin/models/ModelsCreate.vue'),
+        },
+        {
+          path: 'tags',
+          name: 'admin-tags',
+          component: () => import('../views/admin/tags/TagsList.vue'),
+        },
+        {
+          path: 'users',
+          name: 'admin-users',
+          component: () => import('../views/admin/users/UsersList.vue'),
+        },
+      ],
+    },
   ],
 })
 
-// Validación básica de acceso para rutas protegidas
-router.beforeEach((to, from, next) => {
-  // En el futuro, reemplazaremos esto con un store de Pinia y un JWT real
-  const isAuthenticated = localStorage.getItem('auth_token')
-  
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    // Si intenta ir a /admin sin estar logueado, lo mandamos al /login
+router.beforeEach((to, _from, next) => {
+  const token = localStorage.getItem('accessToken')
+
+  if (to.matched.some((r) => r.meta.requiresAuth) && !token) {
     next({ name: 'login' })
-  } else if (to.name === 'login' && isAuthenticated) {
-    // Si ya está logueado e intenta ir a /login, lo redirigimos al /admin
-    next({ name: 'admin' })
+  } else if (to.name === 'login' && token) {
+    next({ name: 'admin-locations' })
   } else {
-    // Permite la navegación en cualquier otro caso
     next()
   }
 })
