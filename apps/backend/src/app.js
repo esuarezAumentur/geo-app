@@ -10,8 +10,10 @@ const errorHandler = require('./shared/infrastructure/http/middlewares/errorHand
 // Secondary adapters (persistence + disk)
 const MongoAuthUserRepository = require('./modules/auth/infrastructure/persistence/MongoAuthUserRepository');
 const MongoUserRepository = require('./modules/users/infrastructure/persistence/MongoUserRepository');
-const MongoMapRepository = require('./modules/maps/infrastructure/persistence/MongoMapRepository');
-const MongoPoiRepository = require('./modules/pois/infrastructure/persistence/MongoPoiRepository');
+const MongoTagRepository = require('./modules/tags/infrastructure/persistence/MongoTagRepository');
+const MongoLocationRepository = require('./modules/locations/infrastructure/persistence/MongoLocationRepository');
+const MongoRouteRepository = require('./modules/routes/infrastructure/persistence/MongoRouteRepository');
+const MongoModelRepository = require('./modules/models/infrastructure/persistence/MongoModelRepository');
 const DiskStorageAdapter = require('./modules/storage/infrastructure/disk/DiskStorageAdapter');
 const { upload } = require('./modules/storage/infrastructure/disk/multer.config');
 
@@ -27,20 +29,33 @@ const CreateUser = require('./modules/users/application/useCases/CreateUser');
 const UpdateUser = require('./modules/users/application/useCases/UpdateUser');
 const DeleteUser = require('./modules/users/application/useCases/DeleteUser');
 
-// Maps use cases
-const ListMaps = require('./modules/maps/application/useCases/ListMaps');
-const GetMap = require('./modules/maps/application/useCases/GetMap');
-const CreateMap = require('./modules/maps/application/useCases/CreateMap');
-const UpdateMap = require('./modules/maps/application/useCases/UpdateMap');
-const DeleteMap = require('./modules/maps/application/useCases/DeleteMap');
+// Tags use cases
+const ListTags = require('./modules/tags/application/useCases/ListTags');
+const GetTag = require('./modules/tags/application/useCases/GetTag');
+const CreateTag = require('./modules/tags/application/useCases/CreateTag');
+const UpdateTag = require('./modules/tags/application/useCases/UpdateTag');
+const DeleteTag = require('./modules/tags/application/useCases/DeleteTag');
 
-// POIs use cases
-const ListPois = require('./modules/pois/application/useCases/ListPois');
-const GetPoi = require('./modules/pois/application/useCases/GetPoi');
-const CreatePoi = require('./modules/pois/application/useCases/CreatePoi');
-const UpdatePoi = require('./modules/pois/application/useCases/UpdatePoi');
-const DeletePoi = require('./modules/pois/application/useCases/DeletePoi');
-const ReorderPois = require('./modules/pois/application/useCases/ReorderPois');
+// Locations use cases
+const ListLocations = require('./modules/locations/application/useCases/ListLocations');
+const GetLocation = require('./modules/locations/application/useCases/GetLocation');
+const CreateLocation = require('./modules/locations/application/useCases/CreateLocation');
+const UpdateLocation = require('./modules/locations/application/useCases/UpdateLocation');
+const DeleteLocation = require('./modules/locations/application/useCases/DeleteLocation');
+
+// Routes use cases
+const ListRoutes = require('./modules/routes/application/useCases/ListRoutes');
+const GetRoute = require('./modules/routes/application/useCases/GetRoute');
+const CreateRoute = require('./modules/routes/application/useCases/CreateRoute');
+const UpdateRoute = require('./modules/routes/application/useCases/UpdateRoute');
+const DeleteRoute = require('./modules/routes/application/useCases/DeleteRoute');
+
+// Models use cases
+const ListModels = require('./modules/models/application/useCases/ListModels');
+const GetModel = require('./modules/models/application/useCases/GetModel');
+const CreateModel = require('./modules/models/application/useCases/CreateModel');
+const UpdateModel = require('./modules/models/application/useCases/UpdateModel');
+const DeleteModel = require('./modules/models/application/useCases/DeleteModel');
 
 // Storage use cases
 const UploadFile = require('./modules/storage/application/useCases/UploadFile');
@@ -50,8 +65,10 @@ const DeleteFile = require('./modules/storage/application/useCases/DeleteFile');
 // Primary adapters (HTTP routers)
 const makeAuthRouter = require('./modules/auth/infrastructure/http/auth.routes');
 const makeUsersRouter = require('./modules/users/infrastructure/http/users.routes');
-const makeMapsRouter = require('./modules/maps/infrastructure/http/maps.routes');
-const makePoisRouter = require('./modules/pois/infrastructure/http/pois.routes');
+const makeTagsRouter = require('./modules/tags/infrastructure/http/tags.routes');
+const makeLocationsRouter = require('./modules/locations/infrastructure/http/locations.routes');
+const makeRoutesRouter = require('./modules/routes/infrastructure/http/routes.routes');
+const makeModelsRouter = require('./modules/models/infrastructure/http/models.routes');
 const makeStorageRouter = require('./modules/storage/infrastructure/http/storage.routes');
 
 // ── App setup ────────────────────────────────────────────────────────────────
@@ -70,8 +87,10 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
 const authUserRepo = new MongoAuthUserRepository();
 const userRepo = new MongoUserRepository();
-const mapRepo = new MongoMapRepository();
-const poiRepo = new MongoPoiRepository();
+const tagRepo = new MongoTagRepository();
+const locationRepo = new MongoLocationRepository();
+const routeRepo = new MongoRouteRepository();
+const modelRepo = new MongoModelRepository();
 const storageAdapter = new DiskStorageAdapter();
 
 // ── Routes ───────────────────────────────────────────────────────────────────
@@ -90,21 +109,36 @@ app.use('/api/users', makeUsersRouter({
   deleteUser: new DeleteUser(userRepo),
 }));
 
-app.use('/api/maps', makeMapsRouter({
-  listMaps:  new ListMaps(mapRepo),
-  getMap:    new GetMap(mapRepo),
-  createMap: new CreateMap(mapRepo),
-  updateMap: new UpdateMap(mapRepo),
-  deleteMap: new DeleteMap(mapRepo),
+app.use('/api/tags', makeTagsRouter({
+  listTags:  new ListTags(tagRepo),
+  getTag:    new GetTag(tagRepo),
+  createTag: new CreateTag(tagRepo),
+  updateTag: new UpdateTag(tagRepo),
+  deleteTag: new DeleteTag(tagRepo),
 }));
 
-app.use('/api/maps', makePoisRouter({
-  listPois:   new ListPois(poiRepo, mapRepo),
-  getPoi:     new GetPoi(poiRepo),
-  createPoi:  new CreatePoi(poiRepo, mapRepo),
-  updatePoi:  new UpdatePoi(poiRepo),
-  deletePoi:  new DeletePoi(poiRepo),
-  reorderPois: new ReorderPois(poiRepo, mapRepo),
+app.use('/api/locations', makeLocationsRouter({
+  listLocations:  new ListLocations(locationRepo),
+  getLocation:    new GetLocation(locationRepo),
+  createLocation: new CreateLocation(locationRepo),
+  updateLocation: new UpdateLocation(locationRepo),
+  deleteLocation: new DeleteLocation(locationRepo),
+}));
+
+app.use('/api/routes', makeRoutesRouter({
+  listRoutes:  new ListRoutes(routeRepo),
+  getRoute:    new GetRoute(routeRepo),
+  createRoute: new CreateRoute(routeRepo),
+  updateRoute: new UpdateRoute(routeRepo),
+  deleteRoute: new DeleteRoute(routeRepo),
+}));
+
+app.use('/api/models', makeModelsRouter({
+  listModels:  new ListModels(modelRepo),
+  getModel:    new GetModel(modelRepo),
+  createModel: new CreateModel(modelRepo),
+  updateModel: new UpdateModel(modelRepo),
+  deleteModel: new DeleteModel(modelRepo),
 }));
 
 app.use('/api/storage', makeStorageRouter({

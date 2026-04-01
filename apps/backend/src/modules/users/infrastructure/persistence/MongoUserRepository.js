@@ -13,8 +13,8 @@ class MongoUserRepository {
     return UserModel.findOne({ email });
   }
 
-  async create({ email, passwordHash, role }) {
-    return UserModel.create({ email, passwordHash, role });
+  async create({ name, email, passwordHash, role }) {
+    return UserModel.create({ name, email, passwordHash, role });
   }
 
   async update(id, data) {

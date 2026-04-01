@@ -19,9 +19,9 @@ function errorHandler(err, req, res, _next) {
   }
 
   if (err.name === 'ZodError') {
-    return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).json({
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       message: MESSAGES.VALIDATION_ERROR,
-      errors: err.errors.map((e) => ({ path: e.path.join('.'), message: e.message })),
+      // errors: err.errors.map((e) => ({ path: e.path.join('.'), message: e.message })),
     });
   }
 

@@ -18,6 +18,18 @@ const MESSAGES = {
   // POIs
   POI_NOT_FOUND: 'POI not found',
 
+  // Tags
+  TAG_NOT_FOUND: 'Tag not found',
+
+  // Points of interest
+  POINT_OF_INTEREST_NOT_FOUND: 'Point of interest not found',
+
+  // Routes
+  ROUTE_NOT_FOUND: 'Route not found',
+
+  // Models
+  MODEL_NOT_FOUND: 'Model not found',
+
   // Storage
   STORAGE_NO_FILE: 'No file uploaded',
   STORAGE_FILE_TYPE_NOT_ALLOWED: 'File type not allowed',

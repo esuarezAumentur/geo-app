@@ -14,9 +14,12 @@ const ALLOWED_MIMES = {
   'application/vnd.google-earth.kml+xml': '.kml',
   'text/xml': '.kml',
   'application/xml': '.kml',
+  'model/gltf+json': '.gltf',
+  'model/gltf-binary': '.glb',
+  'application/octet-stream': '.glb',
 };
 
-const MAX_SIZE_BYTES = 25 * 1024 * 1024; // 25 MB
+const MAX_SIZE_BYTES = 100 * 1024 * 1024; // 100 MB
 
 const storage = multer.diskStorage({
   destination(_req, _file, cb) {

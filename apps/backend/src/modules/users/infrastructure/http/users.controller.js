@@ -30,7 +30,7 @@ class UsersController extends BaseController {
     return this.handle(async (req, res) => {
       const data = createUserSchema.parse(req.body);
       const user = await this.createUser.execute(data);
-      res.status(HTTP_STATUS.CREATED).json({ id: user._id, email: user.email, role: user.role });
+      res.status(HTTP_STATUS.CREATED).json({ id: user._id, name: user.name, email: user.email, role: user.role });
     });
   }
 
