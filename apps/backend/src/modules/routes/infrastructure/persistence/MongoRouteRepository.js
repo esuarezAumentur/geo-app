@@ -5,7 +5,6 @@ class MongoRouteRepository {
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
       RouteModel.find()
-        .populate('waypoints', 'name coordinates')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(Number(limit)),
@@ -16,17 +15,15 @@ class MongoRouteRepository {
   }
 
   async findById(id) {
-    return RouteModel.findById(id).populate('waypoints', 'name coordinates');
+    return RouteModel.findById(id);
   }
 
   async create(data) {
-    const route = await RouteModel.create(data);
-    return route.populate('waypoints', 'name coordinates');
+    return RouteModel.create(data);
   }
 
   async update(id, data) {
-    return RouteModel.findByIdAndUpdate(id, data, { new: true, runValidators: true })
-      .populate('waypoints', 'name coordinates');
+    return RouteModel.findByIdAndUpdate(id, data, { new: true, runValidators: true });
   }
 
   async delete(id) {

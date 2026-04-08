@@ -10,8 +10,12 @@ const routeSchema = new mongoose.Schema(
     description: { type: String },
     waypoints: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'PointOfInterest',
+        locationId: { type: mongoose.Schema.Types.ObjectId, ref: 'PointOfInterest', default: null },
+        name: { type: String, required: true },
+        coordinates: {
+          latitude: { type: Number, required: true },
+          longitude: { type: Number, required: true },
+        },
       },
     ],
     isActive: {

@@ -126,7 +126,7 @@ import { useRouter } from 'vue-router'
 import { locationsService } from '@/services/locations.service'
 import { tagsService, type Tag } from '@/services/tags.service'
 import { modelsService, type Model3D } from '@/services/models.service'
-import MapPicker from '@/components/admin/MapPicker.vue'
+import MapPicker from '@/components/viewer/mapPicker.vue'
 
 const router = useRouter()
 const activeTab = ref('create')
