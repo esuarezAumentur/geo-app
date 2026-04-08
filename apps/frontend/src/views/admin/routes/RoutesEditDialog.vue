@@ -30,7 +30,13 @@
         <v-row>
           <v-col cols="7">
             <div class="text-subtitle-2 font-weight-medium mb-2">Puntos en el mapa</div>
-            <RouteMapViewer :waypoints="waypointCoords" :height="350" />
+            <RouteMapViewer
+              :waypoints="waypointCoords"
+              :height="350"
+              :editable="true"
+              @add-waypoint="handleAddWaypoint"
+              @update-waypoint="handleUpdateWaypoint"
+            />
           </v-col>
           <v-col cols="5">
             <div class="text-subtitle-2 font-weight-medium mb-1">Puntos en el mapa</div>
@@ -46,12 +52,18 @@
               label="Agregar punto de interés"
               variant="outlined"
               density="comfortable"
-              @update:model-value="addWaypoint"
+              @update:model-value="addPoiWaypoint"
             />
 
-            <div v-for="(wp, index) in localWaypoints" :key="wp._id" class="mb-2">
+            <div v-for="(wp, index) in localWaypoints" :key="index" class="mb-2">
               <div class="text-caption text-grey">{{ index === 0 ? 'Desde:' : `Punto ${index}:` }}</div>
-              <v-chip color="primary" closable @click:close="removeWaypoint(index)">
+              <v-chip
+                :color="wp.locationId ? 'primary' : undefined"
+                :style="!wp.locationId ? 'background:#757575;color:#fff' : ''"
+                :prepend-icon="wp.locationId ? undefined : 'mdi-map-marker'"
+                closable
+                @click:close="removeWaypoint(index)"
+              >
                 {{ wp.name }}
               </v-chip>
             </div>
@@ -71,7 +83,7 @@
 import { ref, watch, computed } from 'vue'
 import { routesService, type Route, type Waypoint } from '@/services/routes.service'
 import type { PointOfInterest } from '@/services/locations.service'
-import RouteMapViewer from '@/components/admin/RouteMapViewer.vue'
+import RouteMapViewer from '@/components/viewer/routeMapViewer.vue'
 
 const props = defineProps<{
   modelValue: boolean
@@ -90,7 +102,7 @@ const localWaypoints = ref<Waypoint[]>([])
 const selectedLocation = ref<string | null>(null)
 
 const availableLocations = computed(() =>
-  props.locations.filter((s) => !localWaypoints.value.find((w) => w._id === s._id)),
+  props.locations.filter((loc) => !localWaypoints.value.find((w) => w.locationId === loc._id)),
 )
 
 const waypointCoords = computed(() =>
@@ -98,6 +110,7 @@ const waypointCoords = computed(() =>
     name: wp.name,
     latitude: wp.coordinates.latitude,
     longitude: wp.coordinates.longitude,
+    isCustom: !wp.locationId,
   })),
 )
 
@@ -106,23 +119,41 @@ watch(
   (r) => {
     if (r) {
       localRoute.value = JSON.parse(JSON.stringify(r))
-      localWaypoints.value = [...r.waypoints]
+      localWaypoints.value = r.waypoints.map((wp) => ({ ...wp }))
     }
   },
   { immediate: true },
 )
 
-function addWaypoint(id: string | null) {
+function addPoiWaypoint(id: string | null) {
   if (!id) return
   const location = props.locations.find((s) => s._id === id)
-  if (location) {
+  if (location && !localWaypoints.value.find((w) => w.locationId === id)) {
     localWaypoints.value.push({
-      _id: location._id,
+      locationId: location._id,
       name: location.name,
       coordinates: location.coordinates,
     })
   }
   selectedLocation.value = null
+}
+
+function handleAddWaypoint(coords: { latitude: number; longitude: number }) {
+  const count = localWaypoints.value.filter((w) => !w.locationId).length
+  localWaypoints.value.push({
+    locationId: null,
+    name: `Custom point ${count + 1}`,
+    coordinates: coords,
+  })
+}
+
+function handleUpdateWaypoint(index: number, coords: { latitude: number; longitude: number }) {
+  if (localWaypoints.value[index]) {
+    localWaypoints.value[index] = {
+      ...localWaypoints.value[index],
+      coordinates: coords,
+    }
+  }
 }
 
 function removeWaypoint(index: number) {
@@ -136,7 +167,11 @@ async function handleSave() {
     await routesService.update(localRoute.value._id, {
       name: localRoute.value.name,
       description: localRoute.value.description,
-      waypoints: localWaypoints.value.map((w) => w._id),
+      waypoints: localWaypoints.value.map(({ locationId, name, coordinates }) => ({
+        locationId,
+        name,
+        coordinates,
+      })),
       isActive: localRoute.value.isActive,
     })
     emit('update:modelValue', false)

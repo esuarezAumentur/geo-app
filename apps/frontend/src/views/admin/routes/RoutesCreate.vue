@@ -45,7 +45,13 @@
         <v-row>
           <v-col cols="7">
             <div class="text-subtitle-2 font-weight-medium mb-2">Puntos en el mapa</div>
-            <RouteMapViewer :waypoints="waypointCoords" :height="400" />
+            <RouteMapViewer
+              :waypoints="waypointCoords"
+              :height="400"
+              :editable="true"
+              @add-waypoint="handleAddWaypoint"
+              @update-waypoint="handleUpdateWaypoint"
+            />
           </v-col>
           <v-col cols="5">
             <div class="text-subtitle-2 font-weight-medium mb-1">Puntos en el mapa</div>
@@ -61,12 +67,18 @@
               label="Agregar punto de interés"
               variant="outlined"
               density="comfortable"
-              @update:model-value="addWaypoint"
+              @update:model-value="addPoiWaypoint"
             />
 
-            <div v-for="(wp, index) in selectedWaypoints" :key="wp._id" class="mb-2">
+            <div v-for="(wp, index) in selectedWaypoints" :key="index" class="mb-2">
               <div class="text-caption text-grey">{{ index === 0 ? 'Desde:' : `Punto ${index}:` }}</div>
-              <v-chip color="primary" closable @click:close="removeWaypoint(index)">
+              <v-chip
+                :color="wp.locationId ? 'primary' : undefined"
+                :style="!wp.locationId ? 'background:#757575;color:#fff' : ''"
+                :prepend-icon="wp.locationId ? undefined : 'mdi-map-marker'"
+                closable
+                @click:close="removeWaypoint(index)"
+              >
                 {{ wp.name }}
               </v-chip>
             </div>
@@ -86,15 +98,15 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { routesService } from '@/services/routes.service'
+import { routesService, type Waypoint } from '@/services/routes.service'
 import { locationsService, type PointOfInterest } from '@/services/locations.service'
-import RouteMapViewer from '@/components/admin/RouteMapViewer.vue'
+import RouteMapViewer from '@/components/viewer/routeMapViewer.vue'
 
 const router = useRouter()
 const activeTab = ref('create')
 const saving = ref(false)
 const allLocations = ref<PointOfInterest[]>([])
-const selectedWaypoints = ref<PointOfInterest[]>([])
+const selectedWaypoints = ref<Waypoint[]>([])
 const selectedLocation = ref<string | null>(null)
 
 const form = reactive({
@@ -104,7 +116,7 @@ const form = reactive({
 })
 
 const availableLocations = computed(() =>
-  allLocations.value.filter((s) => !selectedWaypoints.value.find((w) => w._id === s._id)),
+  allLocations.value.filter((loc) => !selectedWaypoints.value.find((w) => w.locationId === loc._id)),
 )
 
 const waypointCoords = computed(() =>
@@ -112,16 +124,39 @@ const waypointCoords = computed(() =>
     name: wp.name,
     latitude: wp.coordinates.latitude,
     longitude: wp.coordinates.longitude,
+    isCustom: !wp.locationId,
   })),
 )
 
-function addWaypoint(id: string | null) {
+function addPoiWaypoint(id: string | null) {
   if (!id) return
   const location = allLocations.value.find((s) => s._id === id)
-  if (location && !selectedWaypoints.value.find((w) => w._id === id)) {
-    selectedWaypoints.value.push(location)
+  if (location && !selectedWaypoints.value.find((w) => w.locationId === id)) {
+    selectedWaypoints.value.push({
+      locationId: location._id,
+      name: location.name,
+      coordinates: location.coordinates,
+    })
   }
   selectedLocation.value = null
+}
+
+function handleAddWaypoint(coords: { latitude: number; longitude: number }) {
+  const count = selectedWaypoints.value.filter((w) => !w.locationId).length
+  selectedWaypoints.value.push({
+    locationId: null,
+    name: `Custom point ${count + 1}`,
+    coordinates: coords,
+  })
+}
+
+function handleUpdateWaypoint(index: number, coords: { latitude: number; longitude: number }) {
+  if (selectedWaypoints.value[index]) {
+    selectedWaypoints.value[index] = {
+      ...selectedWaypoints.value[index],
+      coordinates: coords,
+    }
+  }
 }
 
 function removeWaypoint(index: number) {
@@ -134,7 +169,11 @@ async function handleCreate() {
     await routesService.create({
       name: form.name,
       description: form.description,
-      waypoints: selectedWaypoints.value.map((w) => w._id),
+      waypoints: selectedWaypoints.value.map(({ locationId, name, coordinates }) => ({
+        locationId,
+        name,
+        coordinates,
+      })),
       isActive: form.isActive,
     })
     router.push('/admin/routes')

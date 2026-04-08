@@ -107,7 +107,7 @@ import { ref, watch } from 'vue'
 import { locationsService, type PointOfInterest } from '@/services/locations.service'
 import type { Tag } from '@/services/tags.service'
 import type { Model3D } from '@/services/models.service'
-import MapPicker from '@/components/admin/MapPicker.vue'
+import MapPicker from '@/components/viewer/mapPicker.vue'
 
 const props = defineProps<{
   modelValue: boolean

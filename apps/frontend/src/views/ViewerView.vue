@@ -8,13 +8,17 @@
     
     <!-- Aquí es donde integraremos CesiumJS en los siguientes pasos -->
     <div id="cesiumContainer" class="cesium-mock">
-      <span>[Contenedor del Visor 3D]</span>
+      <MapViewer :apiKey="googleMapsApiKey" latitude="43.0033524997657" longitude="-7.571028785349617" altitude="100" zoom="14" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+
 import { onMounted } from 'vue'
+import MapViewer from '@/components/viewer/mapViewer.vue'
+
+const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string
 
 onMounted(() => {
   console.log('Vista del visor montada. Lista para inicializar CesiumJS.')

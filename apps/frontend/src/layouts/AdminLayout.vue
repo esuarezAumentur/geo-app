@@ -7,10 +7,10 @@
             {{ userInitials }}
           </span>
         </v-avatar>
-        <div>
+        <!-- <div>
           <div class="text-body-2 font-weight-medium">{{ userName }}</div>
           <v-icon size="x-small" icon="mdi-chevron-down" />
-        </div>
+        </div> -->
       </div>
 
       <v-list density="compact" nav class="mt-2">
@@ -31,7 +31,7 @@
     </v-navigation-drawer>
 
     <v-app-bar flat color="white" border="b" density="compact">
-      <v-text-field
+      <!-- <v-text-field
         placeholder="Quick search"
         prepend-inner-icon="mdi-magnify"
         variant="solo-filled"
@@ -42,7 +42,7 @@
         style="max-width: 300px"
       />
       <v-spacer />
-      <v-btn icon="mdi-account-circle" variant="text" size="small" />
+      <v-btn icon="mdi-account-circle" variant="text" size="small" /> -->
     </v-app-bar>
 
     <v-main class="bg-grey-lighten-4">
@@ -63,6 +63,7 @@ const navItems = [
   { title: 'Sitios de interes', icon: 'mdi-map-marker', to: '/admin/locations' },
   { title: 'Rutas', icon: 'mdi-routes', to: '/admin/routes' },
   { title: 'Modelos', icon: 'mdi-cube-outline', to: '/admin/models' },
+  { title: 'Etiquetas', icon: 'mdi-tag-outline', to: '/admin/tags' },
 ]
 
 const userName = computed(() => auth.user?.name || auth.user?.email || 'Admin')
